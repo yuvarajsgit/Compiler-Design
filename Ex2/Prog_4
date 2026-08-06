@@ -1,0 +1,61 @@
+%{
+#include<stdio.h>
+%}
+
+%option noyywrap
+%x COMMENT
+
+%%
+
+"/*" {
+    printf("Left Context Found : %s\n", yytext);
+    printf("Entering COMMENT State\n");
+    BEGIN(COMMENT);
+}
+
+<COMMENT>"*/" {
+    printf("Right Context Found : %s\n", yytext);
+    printf("Exiting COMMENT State\n");
+    BEGIN(INITIAL);
+}
+
+<COMMENT>\n      { }
+
+<COMMENT>.       { }
+
+[a-zA-Z_][a-zA-Z0-9_]* {
+    printf("Identifier : %s\n", yytext);
+}
+
+[0-9]+ {
+    printf("Number : %s\n", yytext);
+}
+
+[ \t\n]+ { }
+
+. { }
+
+%%
+
+int main(int argc,char *argv[])
+{
+    if(argc>1)
+    {
+        FILE *fp=fopen(argv[1],"r");
+
+        if(fp==NULL)
+        {
+            printf("Cannot open input file\n");
+            return 1;
+        }
+
+        yyin=fp;
+    }
+
+    yylex();
+
+    fclose(yyin);
+
+    return 0;
+}
+

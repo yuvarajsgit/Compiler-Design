@@ -1,0 +1,78 @@
+%{
+#include<stdio.h>
+#include<string.h>
+
+char var[50];
+%}
+
+%option noyywrap
+
+%x VAR INIT
+
+DATATYPE    (int|float|char|double)
+ID          [a-zA-Z_][a-zA-Z0-9_]*
+NUM         [0-9]+
+
+%%
+
+{DATATYPE} {
+    printf("DATA TYPE         : %s\n", yytext);
+    BEGIN(VAR);
+}
+
+<VAR>{ID} {
+    strcpy(var, yytext);
+}
+
+<VAR>"=" {
+    BEGIN(INIT);
+}
+
+<INIT>{NUM} {
+    printf("INITIALIZED VAR   : %s = %s\n", var, yytext);
+}
+
+<VAR>";" {
+    printf("UNINITIALIZED VAR : %s\n", var);
+    printf("PUNCTUATION       : ;\n\n");
+    BEGIN(INITIAL);
+}
+
+<INIT>";" {
+    printf("PUNCTUATION       : ;\n\n");
+    BEGIN(INITIAL);
+}
+
+<*>[ \t\n]+    { }
+
+.          { }
+
+%%
+
+int main(int argc,char *argv[])
+{
+    if(argc>1)
+    {
+        FILE *fp=fopen(argv[1],"r");
+
+        if(fp==NULL)
+        {
+            printf("Cannot open input file\n");
+            return 1;
+        }
+
+        yyin=fp;
+    }
+    else
+    {
+        printf("Usage : ./prog_2 input.txt\n");
+        return 1;
+    }
+
+    yylex();
+
+    fclose(yyin);
+
+    return 0;
+}
+
