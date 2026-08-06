@@ -1,0 +1,80 @@
+%{
+#include <stdio.h>
+#include <string.h>
+
+int count = 0;
+FILE *out;
+
+int is_palin(char str[])
+{
+    int len = strlen(str);
+    int i = 0, j = len - 1;
+
+    while(i < j)
+    {
+        if(str[i] == str[j])
+        {
+            i++;
+            j--;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+%}
+
+%option noyywrap
+
+DIGIT    [01]+
+
+%%
+
+{DIGIT} {
+    if(is_palin(yytext))
+    {
+        count++;
+        fprintf(out, "%s\n", yytext);
+    }
+}
+
+\n      {}
+.       {}
+
+%%
+
+int main(int argc, char *argv[])
+{
+    if(argc > 1)
+    {
+        FILE *fp = fopen(argv[1], "r");
+
+        if(fp == NULL)
+        {
+            printf("Input file cannot be opened\n");
+            return 1;
+        }
+
+        yyin = fp;
+    }
+
+    out = fopen("output.txt", "w");
+
+    if(out == NULL)
+    {
+        printf("Output file cannot be created\n");
+        return 1;
+    }
+
+    yylex();
+
+    fclose(out);
+
+    printf("Total Number of Palindrome Binary Strings: %d\n", count);
+    printf("Palindrome strings are written into output.txt\n");
+
+    return 0;
+}
+

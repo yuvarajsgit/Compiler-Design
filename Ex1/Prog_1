@@ -1,0 +1,32 @@
+%{
+#include<stdio.h>
+int words=0;
+int chars=0;
+int lines=0;
+%}
+%option noyywrap
+%%
+[^ \t\n]+    {words++;chars = chars + yyleng;}
+[ \t]        {chars = chars + yyleng;}
+[\n]         {lines++;chars = chars + yyleng;}
+%%
+int main(int argc, char *argv[])
+{
+    if(argc > 1)
+    {
+        FILE *fp = fopen(argv[1], "r");
+        if(fp == NULL)
+	{
+	    printf("Error: Could not open file %s\n",argv[1]);
+	    return 1;
+	}
+	yyin = fp;
+    }
+
+    yylex();
+	printf("Number of Words:%d\n",words);
+	printf("Number of Characters:%d\n",chars);
+	printf("Number of Lines:%d\n",lines);
+    return 0;
+}
+

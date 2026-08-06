@@ -1,0 +1,26 @@
+%{
+#include<stdio.h>
+#include<string.h>
+char longest[1000] = "";
+int max_len = 0;
+%}
+%option noyywrap
+STRING  [^ \t\n]+
+
+%%
+{STRING} {int len = strlen(yytext); if(len > max_len) {max_len = len; strcpy(longest,yytext);}} 
+[ \t\n]      {}
+%%
+
+int main(int argc,char *argv[])
+{
+    if(argc > 1)
+	{
+	    FILE *fp = fopen(argv[1],"r");
+		yyin = fp;
+	}
+	yylex();
+	printf("Maximum Length String is %s with length %d\n",longest,max_len);
+	return 0;
+}
+
